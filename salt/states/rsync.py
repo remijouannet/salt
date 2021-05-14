@@ -97,6 +97,7 @@ def synchronized(
     excludefrom=None,
     prepare=False,
     dryrun=False,
+    compression=True,
     additional_opts=None,
 ):
     """
@@ -135,6 +136,10 @@ def synchronized(
 
         .. versionadded:: 2016.3.1
 
+    compression : True
+        Whether to enable the rsync `--compression` flag, which
+        will enable file compression during the the transfer
+
     additional_opts
         Pass additional options to rsync, should be included as a list.
 
@@ -163,6 +168,7 @@ def synchronized(
             exclude=exclude,
             excludefrom=excludefrom,
             dryrun=dryrun,
+            compression=compression,
             additional_opts=additional_opts,
         )
 

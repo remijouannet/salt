@@ -38,11 +38,11 @@ def __virtual__():
     )
 
 
-def _check(delete, force, update, passwordfile, exclude, excludefrom, dryrun, rsh):
+def _check(delete, force, update, passwordfile, exclude, excludefrom, dryrun, rsh, compression):
     """
     Generate rsync options
     """
-    options = ["-avz"]
+    options = ["--archive", "--verbose"]
 
     if delete:
         options.append("--delete")
@@ -66,6 +66,8 @@ def _check(delete, force, update, passwordfile, exclude, excludefrom, dryrun, rs
             options.extend(["--exclude", exclude])
     if dryrun:
         options.append("--dry-run")
+    if compression:
+        options.append("--compress")
     return options
 
 
@@ -80,6 +82,7 @@ def rsync(
     excludefrom=None,
     dryrun=False,
     rsh=None,
+    compression=True,
     additional_opts=None,
     saltenv="base",
 ):
@@ -132,11 +135,15 @@ def rsync(
         Whether to enable the rsync `--rsh` flag, to
         specify the remote shell to use.
 
+    compression : True
+        Whether to enable the rsync `--compression` flag, which
+        will enable file compression during the the transfer
+
     additional_opts
         Any additional rsync options, should be specified as a list.
 
-   saltenv
-           Specify a salt fileserver environment to be used.
+    saltenv
+        Specify a salt fileserver environment to be used.
 
     CLI Example:
 
@@ -166,6 +173,8 @@ def rsync(
         dryrun = __salt__["config.option"]("rsync.dryrun")
     if not rsh:
         rsh = __salt__["config.option"]("rsync.rsh")
+    if not compression:
+        compression = __salt__["config.option"]("rsync.compression")
     if not src or not dst:
         raise SaltInvocationError("src and dst cannot be empty")
 
@@ -198,7 +207,7 @@ def rsync(
                 raise CommandExecutionError("{0} does not exist".format(src))
 
     option = _check(
-        delete, force, update, passwordfile, exclude, excludefrom, dryrun, rsh
+        delete, force, update, passwordfile, exclude, excludefrom, dryrun, rsh, compression
     )
 
     if additional_opts and isinstance(additional_opts, list):
